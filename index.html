@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="An interactive MBA decision lab for break-even, cash-flow, NPV, and scenario analysis.">
+  <title>MBA Decision Lab</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.mjs"></script>
+</head>
+<body>
+  <header class="masthead">
+    <div class="container masthead-inner">
+      <div class="brand"><span class="brand-icon">◇</span> MBA Decision Lab</div>
+      <a class="header-link" href="#method">How it works ↗</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="eyebrow">A practical business decision tool</div>
+      <h1>Make the business case.<br><em>Show your assumptions.</em></h1>
+      <p>Model a new product, service, or small business idea. Compare break-even, cash flow, and net present value across three transparent scenarios.</p>
+      <div class="hero-note">Illustrative inputs only · No financial advice · Calculations run in your browser</div>
+    </section>
+
+    <div class="workspace">
+      <section class="panel inputs" aria-labelledby="inputs-heading">
+        <div class="section-top"><div><div class="eyebrow">01 / Inputs</div><h2 id="inputs-heading">Business assumptions</h2></div><button id="reset" class="text-button" type="button">Reset example</button></div>
+        <p class="section-subtitle">Enter your own estimates. All currency values use the same unit.</p>
+        <form id="assumptions" novalidate>
+          <div class="group-title">Unit economics</div>
+          <div class="field-grid">
+            <label>Price per unit <span>Currency / unit</span><input name="price" type="number" min="0.01" step="0.01" value="75" required></label>
+            <label>Variable cost per unit <span>Currency / unit</span><input name="variableCost" type="number" min="0" step="0.01" value="28" required></label>
+            <label>Expected monthly sales <span>Units in month 1</span><input name="monthlyUnits" type="number" min="0" step="1" value="160" required></label>
+            <label>Monthly sales growth <span>% change each month</span><input name="monthlyGrowth" type="number" min="-99.99" max="100" step="0.1" value="1" required></label>
+          </div>
+          <div class="group-title">Investment &amp; timing</div>
+          <div class="field-grid">
+            <label>Fixed monthly cost <span>Rent, software, salaries, etc.</span><input name="fixedCost" type="number" min="0" step="0.01" value="4200" required></label>
+            <label>Upfront investment <span>Paid at month 0</span><input name="startupCost" type="number" min="0" step="0.01" value="18000" required></label>
+            <label>Annual discount rate <span>% for present value</span><input name="annualDiscount" type="number" min="0" step="0.1" value="10" required></label>
+            <label>Analysis horizon <span>Months, 1–120</span><input name="months" type="number" min="1" max="120" step="1" value="24" required></label>
+          </div>
+          <button class="primary-button" type="submit">Analyze business case <span>→</span></button>
+          <p id="error" class="error" role="alert" hidden></p>
+        </form>
+      </section>
+
+      <section class="results" aria-labelledby="results-heading">
+        <div class="section-top"><div><div class="eyebrow">02 / Results</div><h2 id="results-heading">Decision snapshot</h2></div><span class="badge">Live model</span></div>
+        <div class="metric-grid">
+          <article class="metric"><div>Break-even volume</div><strong id="breakeven">—</strong><small>units per month at current price &amp; costs</small></article>
+          <article class="metric"><div>First-month profit</div><strong id="profit">—</strong><small>before tax and financing</small></article>
+          <article class="metric featured"><div>Net present value</div><strong id="npv">—</strong><small>discounted cash flows less upfront investment</small></article>
+          <article class="metric"><div>Payback period</div><strong id="payback">—</strong><small>first crossing of cumulative cash flow</small></article>
+        </div>
+        <div class="chart-card">
+          <div class="chart-heading"><div><h3>Cumulative cash flow</h3><p>After upfront investment · base case</p></div><span id="horizon-label"></span></div>
+          <div id="chart" class="chart" role="img" aria-label="Cumulative cash flow chart"></div>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel scenarios" aria-labelledby="scenarios-heading">
+      <div class="section-top"><div><div class="eyebrow">03 / Uncertainty</div><h2 id="scenarios-heading">Stress-test the decision</h2></div><span class="badge subtle">Edit multipliers below</span></div>
+      <p class="section-subtitle">The starting percentages are illustrative. Change them to match your evidence or class case.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Scenario</th><th>Sales volume</th><th>Price</th><th>Variable cost</th><th>NPV</th><th>Payback</th></tr></thead>
+        <tbody>
+          <tr data-scenario="conservative"><th>Conservative</th><td><input aria-label="Conservative sales volume percent" data-factor="monthlyUnits" type="number" min="0" step="1" value="75">%</td><td><input aria-label="Conservative price percent" data-factor="price" type="number" min="1" step="1" value="95">%</td><td><input aria-label="Conservative variable cost percent" data-factor="variableCost" type="number" min="0" step="1" value="110">%</td><td class="scenario-npv">—</td><td class="scenario-payback">—</td></tr>
+          <tr data-scenario="base"><th>Base</th><td>100%</td><td>100%</td><td>100%</td><td class="scenario-npv">—</td><td class="scenario-payback">—</td></tr>
+          <tr data-scenario="upside"><th>Upside</th><td><input aria-label="Upside sales volume percent" data-factor="monthlyUnits" type="number" min="0" step="1" value="125">%</td><td><input aria-label="Upside price percent" data-factor="price" type="number" min="1" step="1" value="105">%</td><td><input aria-label="Upside variable cost percent" data-factor="variableCost" type="number" min="0" step="1" value="95">%</td><td class="scenario-npv">—</td><td class="scenario-payback">—</td></tr>
+        </tbody>
+      </table></div>
+      <div id="interpretation" class="interpretation"></div>
+      <button id="download" class="secondary-button" type="button">Download month-by-month CSV ↓</button>
+    </section>
+
+    <section id="method" class="method" aria-labelledby="method-heading">
+      <div class="eyebrow">04 / Method</div><h2 id="method-heading">How to read this model</h2>
+      <div class="method-grid">
+        <article><span>01</span><h3>Break-even</h3><p>Fixed monthly cost ÷ (price − variable cost per unit), rounded up. If contribution per unit is zero or less, break-even is unavailable.</p></article>
+        <article><span>02</span><h3>Cash flow</h3><p>Each month: units × (price − variable cost) − fixed cost. Starting cash flow equals negative upfront investment. Sales volume compounds at the entered monthly growth rate.</p></article>
+        <article><span>03</span><h3>Present value</h3><p>NPV sums monthly profit discounted using an effective monthly rate derived from the annual rate, then subtracts upfront investment. A positive NPV depends entirely on the assumptions.</p></article>
+      </div>
+      <p class="method-footnote">Scope: simplified operating model. It excludes tax, debt, working capital, capacity limits, seasonality, and terminal value. Use verified inputs for a real decision.</p>
+    </section>
+  </main>
+  <footer class="footer"><div class="container">MBA Decision Lab · Built as a transparent learning and portfolio project</div></footer>
+</body>
+</html>
